@@ -8,7 +8,8 @@ namespace Eco.Mods.UserCode
     /// Adds an Eco web UI plugin entry in the left sidebar and serves a powder color calculator page
     /// from Eco's built-in web server under /plugins/EcoColorMixerWebPlugin/index.html.
     /// </summary>
-    public sealed class EcoColorMixerWebPlugin : IServerPlugin, IInitializablePlugin, IWebPlugin
+    // Important: implement IModKitPlugin so Eco.PluginManager discovers and instantiates this mod plugin.
+    public sealed class EcoColorMixerWebPlugin : IModKitPlugin, IInitializablePlugin, IWebPlugin
     {
         public string GetStatus() => "Ready";
 
