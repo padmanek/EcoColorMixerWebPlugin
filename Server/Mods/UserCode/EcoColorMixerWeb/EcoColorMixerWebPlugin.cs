@@ -3,6 +3,7 @@ namespace Eco.Mods.UserCode
     using Eco.Core.Plugins.Interfaces;
     using Eco.Core.Utils;
     using Eco.Shared.Localization;
+    using Eco.Shared.Logging;
 
     /// <summary>
     /// Adds an Eco web UI plugin entry in the left sidebar and serves a powder color calculator page
@@ -15,7 +16,10 @@ namespace Eco.Mods.UserCode
 
         public string GetCategory() => "Web";
 
-        public void Initialize(TimedTask timer) { }
+        public void Initialize(TimedTask timer)
+        {
+            Log.WriteLineLoc($"[EcoColorMixerWebPlugin] Initialize called. Static path: {this.GetStaticFilesPath()}, Index: {this.GetPluginIndexUrl()}");
+        }
 
         public LocString GetMenuTitle() => Localizer.DoStr("Powder Color Calculator");
 
