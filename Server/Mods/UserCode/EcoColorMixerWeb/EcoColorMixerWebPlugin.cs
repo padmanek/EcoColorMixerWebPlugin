@@ -42,33 +42,46 @@ namespace Eco.Mods.UserCode
         {
             try
             {
-                var webRootFolder = Path.Combine(AppContext.BaseDirectory, "WebClient");
-                var targetFolder = Path.Combine(webRootFolder, StaticFolderName);
-                var targetIndex = Path.Combine(targetFolder, "index.html");
-                Directory.CreateDirectory(targetFolder);
-
-                if (File.Exists(targetIndex))
-                    return;
+                // Eco.WebServer static files are served from WebConstants.WebRoot (current working directory / WebClient),
+                // not AppContext.BaseDirectory when running single-file bundles.
+                var webRootCandidates = new[]
+                {
+                    Path.Combine(Directory.GetCurrentDirectory(), "WebClient"),
+                    Path.Combine(AppContext.BaseDirectory, "WebClient")
+                };
 
                 var sourceCandidates = new[]
                 {
-                    Path.Combine(AppContext.BaseDirectory, "Mods", "UserCode", StaticFolderName, "index.html"),
-                    Path.Combine(AppContext.BaseDirectory, "Server", "Mods", "UserCode", StaticFolderName, "index.html"),
                     Path.Combine(Directory.GetCurrentDirectory(), "Mods", "UserCode", StaticFolderName, "index.html"),
-                    Path.Combine(Directory.GetCurrentDirectory(), "Server", "Mods", "UserCode", StaticFolderName, "index.html")
+                    Path.Combine(Directory.GetCurrentDirectory(), "Server", "Mods", "UserCode", StaticFolderName, "index.html"),
+                    Path.Combine(AppContext.BaseDirectory, "Mods", "UserCode", StaticFolderName, "index.html"),
+                    Path.Combine(AppContext.BaseDirectory, "Server", "Mods", "UserCode", StaticFolderName, "index.html")
                 };
 
-                foreach (var sourcePath in sourceCandidates)
+                string sourcePath = null;
+                foreach (var candidate in sourceCandidates)
                 {
-                    if (!File.Exists(sourcePath))
+                    if (!File.Exists(candidate))
                         continue;
 
-                    File.Copy(sourcePath, targetIndex, overwrite: true);
-                    Log.WriteLineLoc($"[EcoColorMixerWebPlugin] Copied static index fallback from '{sourcePath}' to '{targetIndex}'.");
+                    sourcePath = candidate;
+                    break;
+                }
+
+                if (sourcePath == null)
+                {
+                    Log.WriteWarningLineLoc($"[EcoColorMixerWebPlugin] Could not find source index.html for fallback copy. Checked: {string.Join(" | ", sourceCandidates)}");
                     return;
                 }
 
-                Log.WriteWarningLineLoc($"[EcoColorMixerWebPlugin] Could not find source index.html for fallback copy. Checked: {string.Join(" | ", sourceCandidates)}");
+                foreach (var webRootFolder in webRootCandidates)
+                {
+                    var targetFolder = Path.Combine(webRootFolder, StaticFolderName);
+                    var targetIndex = Path.Combine(targetFolder, "index.html");
+                    Directory.CreateDirectory(targetFolder);
+                    File.Copy(sourcePath, targetIndex, overwrite: true);
+                    Log.WriteLineLoc($"[EcoColorMixerWebPlugin] Copied static index fallback from '{sourcePath}' to '{targetIndex}'.");
+                }
             }
             catch (Exception e)
             {
