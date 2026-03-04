@@ -1,6 +1,6 @@
 # EcoColorMixerWebPlugin
 
-Eco DLL/UserCode web plugin that adds a **Powder Color Calculator** entry to Eco's built-in web UI sidebar and serves the calculator from Eco's internal web server.
+Eco DLL/UserCode web plugin that adds a **Powder Color Matcher** entry to Eco's built-in web UI sidebar and serves the calculator from Eco's internal web server.
 
 ## Files
 - `Server/Mods/UserCode/EcoColorMixerWeb/EcoColorMixerWebPlugin.cs`

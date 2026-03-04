@@ -3,36 +3,257 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Eco Powder Color Calculator</title>
+  <title>Eco Powder Color Matcher</title>
   <style>
-    :root { color-scheme: dark; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-    body { margin: 0; padding: 1rem; background: #121417; color: #f1f4f8; }
-    .app { max-width: 980px; margin: 0 auto; background: #1b2026; border: 1px solid #2f3742; border-radius: 14px; padding: 1rem; }
-    .controls { display: grid; grid-template-columns: 1fr auto auto auto; gap: 0.6rem; align-items: center; margin: 0.75rem 0; }
-    input, button { border: 1px solid #3a4452; border-radius: 10px; background: #141920; color: #f1f4f8; padding: 0.55rem 0.7rem; }
-    button { background: #2b7cff; border-color: #2b7cff; cursor: pointer; }
-    .swatches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; margin: 0.75rem 0; }
-    .swatch-card, .mix { border: 1px solid #2f3742; border-radius: 10px; padding: 0.65rem; background: #141920; }
-    .swatch { width: 100%; height: 88px; border-radius: 8px; border: 1px solid rgb(255 255 255 / 20%); margin-bottom: 0.4rem; }
-    .meta { font-size: 0.88rem; color: #b5bfca; }
-    .mix-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.65rem; }
-    code { display: inline-block; background: #0f1318; border: 1px solid #2f3742; border-radius: 6px; padding: 0.1rem 0.35rem; }
-    #picker { width: 38px; height: 38px; padding: 0; border-radius: 8px; }
+    :root {
+      color-scheme: dark;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 2rem;
+      background: #121417;
+      color: #f1f4f8;
+    }
+
+    .app {
+      max-width: 880px;
+      margin: 0 auto;
+      background: #1b2026;
+      border: 1px solid #2f3742;
+      border-radius: 14px;
+      padding: 1.25rem;
+      box-shadow: 0 10px 30px rgb(0 0 0 / 30%);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 1.45rem;
+    }
+
+    p {
+      color: #b5bfca;
+      line-height: 1.4;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 0.75rem;
+      align-items: center;
+      margin: 1rem 0;
+    }
+
+    #hexInput {
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 0.75rem;
+      }
+
+      .app {
+        max-width: 100%;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .controls > * {
+        width: 100%;
+      }
+
+      .picker-wrap {
+        justify-content: flex-start;
+      }
+    }
+
+    .picker-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.2rem 0.5rem;
+      border: 1px solid #3a4452;
+      border-radius: 10px;
+      background: #141920;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    #picker {
+      padding: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid #3a4452;
+      cursor: pointer;
+    }
+
+    .picker-wrap .meta {
+      white-space: nowrap;
+    }
+
+    .search-options {
+      margin: 0.75rem 0 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    #maxTotalPowders {
+      width: 5rem;
+      text-align: center;
+    }
+
+    input, button {
+      border: 1px solid #3a4452;
+      border-radius: 10px;
+      background: #141920;
+      color: #f1f4f8;
+      padding: 0.65rem 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    button {
+      background: #2b7cff;
+      border-color: #2b7cff;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover {
+      filter: brightness(1.08);
+    }
+
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .swatch-card {
+      border: 1px solid #2f3742;
+      border-radius: 12px;
+      padding: 0.75rem;
+    }
+
+    .swatch {
+      width: 100%;
+      height: 92px;
+      border-radius: 8px;
+      border: 1px solid rgb(255 255 255 / 20%);
+      margin-bottom: 0.5rem;
+    }
+
+    .mix-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .colorants {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .colorant {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 1px solid #2f3742;
+      border-radius: 8px;
+      padding: 0.4rem 0.5rem;
+      background: #141920;
+      font-size: 0.88rem;
+      color: #b5bfca;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .colorant.disabled {
+      opacity: 0.45;
+      text-decoration: line-through;
+      border-color: #5b6573;
+    }
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      border: 1px solid rgb(255 255 255 / 30%);
+      flex: none;
+    }
+
+    .mix {
+      border: 1px solid #2f3742;
+      border-radius: 10px;
+      padding: 0.7rem;
+      background: #141920;
+    }
+
+    .mix h3 {
+      margin: 0 0 0.25rem;
+      font-size: 1rem;
+    }
+
+    .recipe-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .meta {
+      font-size: 0.88rem;
+      color: #b5bfca;
+    }
+
+    code {
+      display: inline-block;
+      background: #0f1318;
+      border: 1px solid #2f3742;
+      border-radius: 6px;
+      padding: 0.1rem 0.35rem;
+    }
   </style>
 </head>
 <body>
   <main class="app">
-    <h2>Eco Powder Color Calculator</h2>
-    <p class="meta">Uses in-game colorants from <code>ColorMixer.PossibleColorants</code>. Set target color and max total powders.</p>
+    <h1>Eco Powder Color Matcher</h1>
+    <p>
+      Enter any hex color and this tool searches powder recipes to find the best in-game approximation.
+      It uses the eight game colorants from <code>ColorMixer.PossibleColorants</code> and searches mixes up to your chosen total powder count.
+    </p>
 
     <div class="controls">
       <input id="hexInput" type="text" value="#8A67D4" maxlength="7" aria-label="Hex color" />
-      <input id="picker" type="color" value="#8a67d4" aria-label="Color picker" />
-      <label class="meta">Max total powders <input id="maxTotalPowders" type="number" min="1" max="100" value="8" style="width:4.8rem; margin-left:0.3rem" /></label>
+      <label class="picker-wrap">
+        <input id="picker" type="color" value="#8a67d4" aria-label="Color picker" />
+        <span class="meta">Color wheel picker</span>
+      </label>
       <button id="findBtn">Find best mixes</button>
     </div>
 
-    <div class="meta" id="powderCapMeta">Game cap: 100 total powders (MixingComponent / ColorMixer limits)</div>
+    <div class="search-options">
+      <label for="maxTotalPowders">Max total powders:</label>
+      <input id="maxTotalPowders" type="number" min="1" step="1" />
+      <span id="powderCapMeta" class="meta"></span>
+    </div>
+
+    <section>
+      <strong>In-game colorants</strong>
+      <div id="colorants" class="colorants"></div>
+    </section>
 
     <div class="swatches">
       <div class="swatch-card">
@@ -64,18 +285,30 @@
     ];
 
     const DEFAULT_MAX_TOTAL_POWDERS = 8;
-    const GAME_MAX_TOTAL_POWDERS = 100;
     const MAX_RESULTS = 8;
     const BEAM_WIDTH = 3500;
+    // From game code: MaxBucketPerIteration = PaintBucketItem.MaxStackSize * 5,
+    // and requiredBucketCount = PaintBucketCountForConsumptionIncrease(5) * totalIngredientsCount.
+    // Therefore totalIngredientsCount is capped by PaintBucketItem.MaxStackSize (default 100).
+    const GAME_MAX_TOTAL_POWDERS = 100;
 
-    const clamp8 = (v) => Math.max(0, Math.min(255, Math.round(v)));
-    const rgbToHex = ([r, g, b]) => '#' + [r, g, b].map(v => clamp8(v).toString(16).padStart(2, '0')).join('').toUpperCase();
-    const hexToRgb = (hex) => {
+    function clamp8(v) {
+      return Math.max(0, Math.min(255, Math.round(v)));
+    }
+
+    function rgbToHex([r, g, b]) {
+      return '#' + [r, g, b].map(v => clamp8(v).toString(16).padStart(2, '0')).join('').toUpperCase();
+    }
+
+    function hexToRgb(hex) {
       const clean = hex.trim().replace('#', '');
       if (!/^[0-9a-fA-F]{6}$/.test(clean)) return null;
-      return [parseInt(clean.slice(0, 2), 16), parseInt(clean.slice(2, 4), 16), parseInt(clean.slice(4, 6), 16)];
-    };
-    const distanceSq = (a, b) => (a[0]-b[0])**2 + (a[1]-b[1])**2 + (a[2]-b[2])**2;
+      return [
+        parseInt(clean.slice(0, 2), 16),
+        parseInt(clean.slice(2, 4), 16),
+        parseInt(clean.slice(4, 6), 16)
+      ];
+    }
 
     function mixFromCounts(counts) {
       const total = counts.reduce((a, b) => a + b, 0);
@@ -89,41 +322,63 @@
       return [clamp8(r / total), clamp8(g / total), clamp8(b / total)];
     }
 
-    function searchBestMixes(target, maxTotalPowders) {
-      let beam = [{ counts: Array(powders.length).fill(0), rgb: [0,0,0], powders: 0, dist: distanceSq(target, [0,0,0]) }];
+    function distanceSq(a, b) {
+      const dr = a[0] - b[0];
+      const dg = a[1] - b[1];
+      const db = a[2] - b[2];
+      return dr * dr + dg * dg + db * db;
+    }
+
+    function formatRecipe(counts) {
+      return counts
+        .map((count, i) => count > 0 ? `${powders[i].colorant} × ${count}` : null)
+        .filter(Boolean);
+    }
+
+    function searchBestMixes(target, maxTotalPowders, allowedPowderIndices) {
+      if (!allowedPowderIndices.length) return [];
+
+      let beam = [{ counts: Array(powders.length).fill(0), rgb: [0, 0, 0], powders: 0, dist: distanceSq(target, [0, 0, 0]) }];
       const candidates = [];
 
-      for (let total = 1; total <= maxTotalPowders; total++) {
+      for (let totalPowders = 1; totalPowders <= maxTotalPowders; totalPowders++) {
         const nextBeam = [];
         for (const state of beam) {
-          for (let i = 0; i < powders.length; i++) {
+          for (const i of allowedPowderIndices) {
             const counts = state.counts.slice();
             counts[i] += 1;
             const rgb = mixFromCounts(counts);
-            const mix = { counts, rgb, powders: total, dist: distanceSq(target, rgb), hex: rgbToHex(rgb) };
+            const dist = distanceSq(target, rgb);
+
+            const mix = {
+              counts,
+              rgb,
+              powders: totalPowders,
+              dist,
+              hex: rgbToHex(rgb)
+            };
+
             nextBeam.push(mix);
             candidates.push(mix);
           }
         }
+
         nextBeam.sort((a, b) => a.dist - b.dist);
         beam = nextBeam.slice(0, BEAM_WIDTH);
       }
 
       candidates.sort((a, b) => a.dist - b.dist || a.powders - b.powders);
+
       const deduped = [];
       const seen = new Set();
-      for (const m of candidates) {
-        const key = `${m.hex}-${m.counts.join('.')}`;
+      for (const r of candidates) {
+        const key = `${r.hex}-${r.counts.join('.')}`;
         if (seen.has(key)) continue;
-        deduped.push(m);
+        deduped.push(r);
         seen.add(key);
         if (deduped.length >= MAX_RESULTS) break;
       }
       return deduped;
-    }
-
-    function formatRecipe(counts) {
-      return counts.map((count, i) => count > 0 ? `${powders[i].colorant} × ${count}` : null).filter(Boolean).join(', ');
     }
 
     function render(targetRgb, mixes) {
@@ -132,18 +387,61 @@
       document.getElementById('targetRgb').textContent = `rgb(${targetRgb.join(', ')})`;
       document.getElementById('targetSwatch').style.background = targetHex;
 
+      const container = document.getElementById('mixResults');
+      container.innerHTML = '';
+
+      if (!mixes.length) {
+        document.getElementById('bestHex').textContent = '-';
+        document.getElementById('bestRgb').textContent = 'No available recipe with current colorants';
+        document.getElementById('bestSwatch').style.background = 'transparent';
+
+        const empty = document.createElement('article');
+        empty.className = 'mix';
+        empty.innerHTML = `<div class="meta">Enable at least one colorant to calculate recipes.</div>`;
+        container.appendChild(empty);
+        return;
+      }
+
       const best = mixes[0];
       document.getElementById('bestHex').textContent = best.hex;
       document.getElementById('bestRgb').textContent = `rgb(${best.rgb.join(', ')})`;
       document.getElementById('bestSwatch').style.background = best.hex;
 
-      const container = document.getElementById('mixResults');
-      container.innerHTML = '';
       mixes.forEach((mix, idx) => {
+        const delta = Math.sqrt(mix.dist).toFixed(2);
         const div = document.createElement('article');
         div.className = 'mix';
-        div.innerHTML = `<h3>#${idx + 1} ${mix.hex}</h3><div class="meta">${formatRecipe(mix.counts)}</div><div class="meta">RGB distance: ${Math.sqrt(mix.dist).toFixed(2)}</div><div class="meta">Total powders: ${mix.powders}</div>`;
+        const recipeRows = formatRecipe(mix.counts)
+          .map(recipe => `<div>${recipe}</div>`)
+          .join('');
+        div.innerHTML = `
+          <h3>#${idx + 1} ${mix.hex}</h3>
+          <div class="meta recipe-lines">${recipeRows}</div>
+          <div class="meta">RGB distance: ${delta}</div>
+          <div class="meta">Total powders: ${mix.powders}</div>
+        `;
         container.appendChild(div);
+      });
+    }
+
+    const disabledPowders = new Set();
+
+    function renderColorants() {
+      const list = document.getElementById('colorants');
+      list.innerHTML = '';
+      powders.forEach((powder, index) => {
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = `colorant${disabledPowders.has(index) ? ' disabled' : ''}`;
+        row.setAttribute('aria-pressed', String(!disabledPowders.has(index)));
+        row.innerHTML = `<span class="dot" style="background:${rgbToHex(powder.rgb)}"></span>${powder.colorant}`;
+        row.addEventListener('click', () => {
+          if (disabledPowders.has(index)) disabledPowders.delete(index);
+          else disabledPowders.add(index);
+          renderColorants();
+          run();
+        });
+        list.appendChild(row);
       });
     }
 
@@ -151,18 +449,29 @@
       const hexInput = document.getElementById('hexInput');
       const picker = document.getElementById('picker');
       const rgb = hexToRgb(hexInput.value);
-      if (!rgb) { hexInput.style.borderColor = '#ef4444'; return; }
+      if (!rgb) {
+        hexInput.style.borderColor = '#ef4444';
+        return;
+      }
+
       hexInput.style.borderColor = '';
       const normalized = rgbToHex(rgb);
       hexInput.value = normalized;
       picker.value = normalized.toLowerCase();
 
-      const maxInput = document.getElementById('maxTotalPowders');
-      const requested = parseInt(maxInput.value, 10);
-      const maxTotal = Number.isFinite(requested) ? Math.max(1, Math.min(GAME_MAX_TOTAL_POWDERS, requested)) : DEFAULT_MAX_TOTAL_POWDERS;
-      maxInput.value = String(maxTotal);
+      const maxTotalInput = document.getElementById('maxTotalPowders');
+      const requested = parseInt(maxTotalInput.value, 10);
+      const maxTotalPowders = Number.isFinite(requested)
+        ? Math.max(1, Math.min(GAME_MAX_TOTAL_POWDERS, requested))
+        : DEFAULT_MAX_TOTAL_POWDERS;
+      maxTotalInput.value = String(maxTotalPowders);
 
-      render(rgb, searchBestMixes(rgb, maxTotal));
+      const allowedPowderIndices = powders
+        .map((_, i) => i)
+        .filter(i => !disabledPowders.has(i));
+
+      const mixes = searchBestMixes(rgb, maxTotalPowders, allowedPowderIndices);
+      render(rgb, mixes);
     }
 
     function previewTarget(hex) {
@@ -176,11 +485,27 @@
     }
 
     document.getElementById('findBtn').addEventListener('click', run);
-    document.getElementById('maxTotalPowders').addEventListener('change', run);
-    document.getElementById('picker').addEventListener('input', (e) => previewTarget(e.target.value));
-    document.getElementById('picker').addEventListener('change', (e) => { document.getElementById('hexInput').value = e.target.value.toUpperCase(); run(); });
-    document.getElementById('hexInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
+    document.getElementById('picker').addEventListener('input', (e) => {
+      // Keep picker interaction smooth: preview target color while dragging,
+      // then run the expensive search once the user commits the selection.
+      previewTarget(e.target.value);
+    });
+    document.getElementById('picker').addEventListener('change', (e) => {
+      document.getElementById('hexInput').value = e.target.value.toUpperCase();
+      run();
+    });
+    document.getElementById('hexInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') run();
+    });
 
+    const maxTotalInput = document.getElementById('maxTotalPowders');
+    maxTotalInput.max = String(GAME_MAX_TOTAL_POWDERS);
+    maxTotalInput.value = String(DEFAULT_MAX_TOTAL_POWDERS);
+    document.getElementById('powderCapMeta').textContent = `Game cap: ${GAME_MAX_TOTAL_POWDERS} total powders (from MixingComponent limits)`;
+
+    maxTotalInput.addEventListener('change', () => run());
+
+    renderColorants();
     run();
   </script>
 </body>

@@ -26,7 +26,7 @@ namespace Eco.Mods.UserCode
             Log.WriteLineLoc($"[EcoColorMixerWebPlugin] Initialize called. Static path: {this.GetStaticFilesPath()}, Index: {this.GetPluginIndexUrl()}");
         }
 
-        public LocString GetMenuTitle() => Localizer.DoStr("Powder Color Calculator");
+        public LocString GetMenuTitle() => Localizer.DoStr("Powder Color Matcher");
 
         // Plugin.vue builds iframe src as `/plugins/${PluginIndexUrl}` so this should be path relative to /plugins.
         public string GetPluginIndexUrl() => $"{this.GetType().Name}/index.html";
