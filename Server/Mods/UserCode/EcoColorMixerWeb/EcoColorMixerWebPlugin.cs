@@ -74,13 +74,25 @@ namespace Eco.Mods.UserCode
                     return;
                 }
 
+                // Copy once to the first valid web root to avoid duplicate copies/log spam.
                 foreach (var webRootFolder in webRootCandidates)
                 {
-                    var targetFolder = Path.Combine(webRootFolder, StaticFolderName);
-                    var targetIndex = Path.Combine(targetFolder, "index.html");
-                    Directory.CreateDirectory(targetFolder);
-                    File.Copy(sourcePath, targetIndex, overwrite: true);
-                    Log.WriteLineLoc($"[EcoColorMixerWebPlugin] Copied static index fallback from '{sourcePath}' to '{targetIndex}'.");
+                    if (string.IsNullOrWhiteSpace(webRootFolder))
+                        continue;
+
+                    try
+                    {
+                        var targetFolder = Path.Combine(webRootFolder, StaticFolderName);
+                        var targetIndex = Path.Combine(targetFolder, "index.html");
+                        Directory.CreateDirectory(targetFolder);
+                        File.Copy(sourcePath, targetIndex, overwrite: true);
+                        Log.WriteLineLoc($"[EcoColorMixerWebPlugin] Copied static index fallback from '{sourcePath}' to '{targetIndex}'.");
+                        break;
+                    }
+                    catch (Exception copyEx)
+                    {
+                        Log.WriteWarningLineLoc($"[EcoColorMixerWebPlugin] Failed fallback copy to '{webRootFolder}': {copyEx.Message}");
+                    }
                 }
             }
             catch (Exception e)
